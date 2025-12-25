@@ -25,7 +25,6 @@ row_anio   = [("" if v is None else str(v)).strip() for v in header[2]]
 row_mes    = [("" if v is None else str(v)).strip() for v in header[3]]
 
 # Limpiar estado/mes (quitar espacios)
-# Nota: en tus datos, las columnas 0 y 1 son sexo/edad, los valores empiezan en col 2
 col_count = len(row_estado)
 idx_cols = list(range(2, col_count))
 
@@ -83,7 +82,7 @@ def row_to_records(row):
         anio   = am.get(j, "")
         mes    = mm.get(j, "")
 
-        # si algo de header está vacío, no generamos registro
+        # si algo de header está vacío, no se genera ese registro
         if estado == "" or anio == "" or mes == "":
             continue
 
