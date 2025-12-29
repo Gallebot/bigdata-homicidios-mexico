@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Homicidios MX - Dashboard</title>
+  <link rel="stylesheet" href="./styles.css" />
+
+  <!-- Chart.js por CDN (simple) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="header">
+    <h1>Homicidios MX</h1>
+    <div class="sub">Dashboard (DuckDB + Parquet + FastAPI)</div>
+  </header>
+
+  <main class="container">
+
+    <section class="card">
+      <div class="card-title">Conexión</div>
+      <div class="row">
+        <label>API base</label>
+        <input id="apiBase" type="text" value="http://localhost:8000" />
+        <button id="btnPing">Probar /health</button>
+        <span id="pingStatus" class="muted"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Filtros</div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Estados (multi)</label>
+          <select id="estados" multiple size="10"></select>
+          <div class="hint">Tip: Ctrl/⌘ para seleccionar varios.</div>
+        </div>
+
+        <div class="field">
+          <label>Sexo (multi)</label>
+          <select id="sexos" multiple size="3"></select>
+        </div>
+
+        <div class="field">
+          <label>Año (rango)</label>
+          <div class="row">
+            <input id="anioMin" type="number" />
+            <span class="muted">a</span>
+            <input id="anioMax" type="number" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Mes (rango)</label>
+          <div class="row">
+            <input id="mesMin" type="number" min="1" max="12" />
+            <span class="muted">a</span>
+            <input id="mesMax" type="number" min="1" max="12" />
+          </div>
+          <div class="hint">Mes = mes_num (1..12)</div>
+        </div>
+
+        <div class="field">
+          <label>Edad (rango)</label>
+          <div class="row">
+            <input id="edadMin" type="number" />
+            <span class="muted">a</span>
+            <input id="edadMax" type="number" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Límite de filas (tabla)</label>
+          <input id="limit" type="number" value="200" min="1" max="2000" />
+          <div class="hint">Si pones muy alto, tarda más.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="btnLoadFilters">Cargar filtros</button>
+        <button id="btnApply">Aplicar y actualizar</button>
+        <span id="status" class="muted"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Resumen</div>
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-label">Total</div>
+          <div id="kpiTotal" class="kpi-value">-</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Promedio por registro</div>
+          <div id="kpiAvg" class="kpi-value">-</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Rango años</div>
+          <div id="kpiYears" class="kpi-value">-</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Serie temporal (Total por Año-Mes)</div>
+      <canvas id="tsChart" height="110"></canvas>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Top Estados</div>
+      <div class="row">
+        <label>Top N</label>
+        <input id="topN" type="number" value="10" min="3" max="32" />
+        <button id="btnTop">Actualizar Top</button>
+      </div>
+      <canvas id="topChart" height="120"></canvas>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Tabla (filtrada)</div>
+      <div class="table-wrap">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th>Estado</th>
+              <th>Sexo</th>
+              <th>Edad</th>
+              <th>Año</th>
+              <th>Mes</th>
+              <th>Mes_num</th>
+              <th>Homicidios</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
