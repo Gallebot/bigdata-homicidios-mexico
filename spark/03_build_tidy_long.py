@@ -6,8 +6,9 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 # stdout en UTF-8 aunque la terminal sea ASCII
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-IN_CSV = "file:/workspace/bigdata-homicidios-mexico/data/Defunciones_registradas_mortalidad_general.csv"
-OUT_PARQUET = "file:/workspace/bigdata-homicidios-mexico/output/parquet_homicidios_tidy"
+IN_CSV = "file:data/Defunciones_registradas_mortalidad_general.csv"
+OUT_PARQUET = "file:output/parquet_homicidios_tidy"
+
 
 spark = SparkSession.builder.appName("Homicidios-Build-Tidy-Long").getOrCreate()
 sc = spark.sparkContext
