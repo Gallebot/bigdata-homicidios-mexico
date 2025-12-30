@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import io, sys, os
-
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+import sys, os
 
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
@@ -14,51 +12,50 @@ try:
 except Exception as e:
     print("\n[ERROR] No pude importar matplotlib para generar gráficas.")
     print("Instálalo dentro del contenedor (una sola vez) con:")
-    print("  python3 -m pip install --no-cache-dir numpy matplotlib")
-    print("\nDetalle:", str(e))
+    print("  pip install --no-cache-dir numpy matplotlib")
+    print("\nDetalle: " + str(e))
     sys.exit(1)
-
 
 
 # RUTAS (LOCAL DENTRO DEL CONTENEDOR)
 
+
 BASE = "/workspace/bigdata-homicidios-mexico/output"
 
-CSV_MONTHLY_STATE_DIR      = f"{BASE}/csv_monthly_state"
-CSV_MONTHLY_STATE_SEXO_DIR = f"{BASE}/csv_monthly_state_sexo"
+CSV_MONTHLY_STATE_DIR      = BASE + "/csv_monthly_state"
+CSV_MONTHLY_STATE_SEXO_DIR = BASE + "/csv_monthly_state_sexo"
 
-OUT_PLOTS_DIR = f"{BASE}/graficas"
-os.makedirs(OUT_PLOTS_DIR, exist_ok=True)
+OUT_PLOTS_DIR = BASE + "/graficas"
+if not os.path.exists(OUT_PLOTS_DIR):
+    os.makedirs(OUT_PLOTS_DIR)
 
 # Spark lee local con file:
-CSV_MONTHLY_STATE_URI      = f"file:{CSV_MONTHLY_STATE_DIR}"
-CSV_MONTHLY_STATE_SEXO_URI = f"file:{CSV_MONTHLY_STATE_SEXO_DIR}"
-
+CSV_MONTHLY_STATE_URI      = "file:" + CSV_MONTHLY_STATE_DIR
+CSV_MONTHLY_STATE_SEXO_URI = "file:" + CSV_MONTHLY_STATE_SEXO_DIR
 
 
 # SPARK
 
+
 spark = SparkSession.builder.appName("Homicidios-Visualize-Aggregates").getOrCreate()
 spark.sparkContext.setLogLevel("WARN")
 
-
-def must_exist_dir(path: str):
+def must_exist_dir(path):
     if not os.path.exists(path):
-        print(f"\n[ERROR] No existe la ruta local: {path}")
+        print("\n[ERROR] No existe la ruta local: " + path)
         print("Solución: ejecuta primero:")
-        print("  03_build_tidy_long.py")
-        print("  04_aggregate_monthly.py")
+        print("  spark-submit spark/03_build_tidy_long.py")
+        print("  spark-submit spark/04_aggregate_monthly.py")
         spark.stop()
         sys.exit(1)
-
 
 # Verificar que existan carpetas CSV (local)
 must_exist_dir(CSV_MONTHLY_STATE_DIR)
 must_exist_dir(CSV_MONTHLY_STATE_SEXO_DIR)
 
 
-
 # CARGA CSV (Spark)
+
 
 monthly_state = (
     spark.read.option("header", True).csv(CSV_MONTHLY_STATE_URI)
@@ -77,12 +74,12 @@ monthly_state_sexo = (
 )
 
 print("\n=== OK: CSV cargados ===")
-print("monthly_state:", monthly_state.count(), "registros")
-print("monthly_state_sexo:", monthly_state_sexo.count(), "registros")
-
+print("monthly_state: " + str(monthly_state.count()) + " registros")
+print("monthly_state_sexo: " + str(monthly_state_sexo.count()) + " registros")
 
 
 # 1) TOP 15 ESTADOS (TOTAL HISTÓRICO)
+
 
 top_states = (
     monthly_state.groupBy("estado")
@@ -105,8 +102,8 @@ plt.savefig(os.path.join(OUT_PLOTS_DIR, "01_top15_estados_total_historico.png"),
 plt.close()
 
 
-
 # 2) TENDENCIA NACIONAL POR AÑO (SUMA)
+
 
 national_by_year = (
     monthly_state.groupBy("anio")
@@ -129,8 +126,8 @@ plt.savefig(os.path.join(OUT_PLOTS_DIR, "02_tendencia_nacional_por_anio.png"), d
 plt.close()
 
 
-
 # 3) ESTACIONALIDAD NACIONAL (SUMA POR MES)
+
 
 by_month = (
     monthly_state.groupBy("mes_num")
@@ -153,8 +150,8 @@ plt.savefig(os.path.join(OUT_PLOTS_DIR, "03_estacionalidad_nacional_por_mes.png"
 plt.close()
 
 
-
 # 4) DISTRIBUCIÓN NACIONAL POR SEXO (TOTAL HISTÓRICO)
+
 
 sexo_total = (
     monthly_state_sexo.groupBy("sexo")
@@ -175,12 +172,12 @@ plt.tight_layout()
 plt.savefig(os.path.join(OUT_PLOTS_DIR, "04_total_por_sexo.png"), dpi=150)
 plt.close()
 
-
 print("\n=== Gráficas generadas en ===")
-print(f"  {OUT_PLOTS_DIR}")
+print("  " + OUT_PLOTS_DIR)
 print(" - 01_top15_estados_total_historico.png")
 print(" - 02_tendencia_nacional_por_anio.png")
 print(" - 03_estacionalidad_nacional_por_mes.png")
 print(" - 04_total_por_sexo.png")
 
 spark.stop()
+
