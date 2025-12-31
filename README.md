@@ -14,12 +14,12 @@ Este proyecto realiza un procesamiento de datos masivos utilizando **Apache Spar
 * **Docker** y **Docker Compose** instalados.
 
 ---
+Es necesario realizar en orden todos los pasos que se mencionan a continuación para una ejecución correcta
 
 
+## Fase A: Preparación del Host (dentro de la terminal de Ubuntu)
 
-## Fase A: Preparación del Host (Ubuntu)
-
-### 1. Clonar el Proyecto
+### 1) Clonar el Proyecto
 cd ~/Downloads
 git clone https://github.com/Gallebot/bigdata-homicidios-mexico.git
 
@@ -54,8 +54,11 @@ docker ps
 docker pull suhothayan/hadoop-spark-pig-hive:2.9.2
 
 
+---
 
-## Fase B: Preparación del Host (Ubuntu)
+
+
+## Fase B: Preparación del Host (aún en la terminal de Ubuntu)
 
 
 ### 5) Entrar al contenedor con el repo montado (SIN --rm para no perder instalaciones)
@@ -66,7 +69,7 @@ docker run -it \
   bash
 
 
-# ---- A PARTIR DE AQUÍ YA ES LA TERMINAL ROOT ----
+## -- A PARTIR DE AQUÍ YA ES LA TERMINAL ROOT --
 
 ### 6) Ir a la raíz del repositorio
 cd /workspace/bigdata-homicidios-mexico
@@ -127,8 +130,13 @@ do
     "$f" || exit 1
 done
 
+---
 
-## Fase C: Levantar el servidor para ver la página
+
+
+## Fase C: Levantar el servidor para ver la página (en la terminal de Ubuntu)
+
+Es necesario abrir una terminal nueva para ejecutar estos comandos
 
 ### 1) Dirigirse a la ruta correcta
 
@@ -142,12 +150,13 @@ docker-compose up --build
 O puede quitarse ejecutarse dependiendo la version de docker instalada:
 docker compose up --build 
 
+## -- Es obligatorio abrir una terminal nueva y ejecutar lo siguiente --
+
 ### 3) Verificar el estado del servidor
 curl http://localhost:8000/health
 
 ### 4) Dirigirse a la ruta de la página
 cd Downloads/bigdata-homicidios-mexico/web/frontend
-ls
 
 ### 5) Iniciar el servidor
 python3 -m http.server 5173
