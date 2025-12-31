@@ -1,19 +1,29 @@
-# bigdata-homicidios-mexico
+# Análisis de Homicidios en México (Big Data)
+
+Este proyecto realiza un procesamiento de datos masivos utilizando **Apache Spark** sobre un entorno contenedorizado con **Docker**. Permite la limpieza, agregación, predicción y visualización de datos estadísticos.
+
+---
+
+## Requisitos Previos
+
+> [!IMPORTANT]
+> Este proyecto está diseñado para ejecutarse exclusivamente en **Ubuntu Linux** (Recomendado 22.04 LTS o superior) debido a las dependencias de Docker y la configuración del Kernel necesaria para Spark.
+
+* **Sistema Operativo:** Ubuntu 22.04 LTS o superior.
+* **Memoria RAM:** Mínimo 8GB (Recomendado 16GB).
+* **Docker** y **Docker Compose** instalados.
+
+---
 
 
 
-# //////////////////////////////////////////////////
-# INSTALACIÓN
+## Fase A: Preparación del Host (Ubuntu)
 
-# =====================================================
-# A) HOST (Ubuntu)
-# =====================================================
-
-# 1) Clonar repositorio
+### 1. Clonar el Proyecto
 cd ~/Downloads
 git clone https://github.com/Gallebot/bigdata-homicidios-mexico.git
 
-# 2) Instalar Docker (si no estaba instalado)
+### 2) Instalar Docker (si no estaba instalado)
 sudo apt-get update
 sudo apt-get install -y git ca-certificates curl gnupg
 
@@ -31,23 +41,24 @@ sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 sudo systemctl enable --now docker
 
-# 3) Permisos Docker 
+### 3) Permisos Docker 
 sudo groupadd -f docker
-sudo usermod -aG docker gallebot
-# Cerrar sesión y volver a entrar (solo una vez)
+sudo usermod -aG docker "nombre de usuario"
 
-# 4) Verificación
+Nota: Es necesario cerrar sesión y volver a entrar para que los cambios surtan efecto.
+
+### 4) Verificación
 docker --version
 docker compose version
 docker ps
 docker pull suhothayan/hadoop-spark-pig-hive:2.9.2
 
 
-# =====================================================
-# B) CONTENEDOR (Spark / Hadoop)
-# =====================================================
 
-# 5) Entrar al contenedor con el repo montado 
+## Fase B: Preparación del Host (Ubuntu)
+
+
+### 5) Entrar al contenedor con el repo montado (SIN --rm para no perder instalaciones)
 docker run -it \
   --name spark_lab_ws \
   -v ~/Downloads/bigdata-homicidios-mexico:/workspace/bigdata-homicidios-mexico \
@@ -57,11 +68,11 @@ docker run -it \
 
 # ---- A PARTIR DE AQUÍ YA ES LA TERMINAL ROOT ----
 
-# 6) Ir a la raíz del repo
+### 6) Ir a la raíz del repositorio
 cd /workspace/bigdata-homicidios-mexico
 
 
-# 7) Instalar dependencias dentro del contenedor
+### 7) Instalar dependencias dentro del contenedor
 apt-get update
 
 apt-get install -y \
@@ -78,17 +89,16 @@ apt-get install -y \
   pkg-config
 
 
-# 8) Librerías Python (para Python 3)
+### 8) Instalación de librerías 
 python3 -m pip install --no-cache-dir --upgrade pip
 python3 -m pip install --no-cache-dir numpy matplotlib
 
-# (opcional pero recomendado) comprobar que matplotlib quedó instalado en python3
+(Opcional) comprobar que matplotlib quedó instalado en python3
 python3 -c "import matplotlib; print('matplotlib:', matplotlib.__version__)"
 
 
-# =========================
-# 9) Variables de entorno (Spark + UTF-8)  + Forzar Python 3 en Spark
-# =========================
+### 9) Variables de entorno (Spark + UTF-8)  + Forzar Python 3 en Spark
+
 export PYSPARK_PYTHON=/usr/bin/python3
 export PYSPARK_DRIVER_PYTHON=/usr/bin/python3
 export PYTHONIOENCODING=utf-8
@@ -118,31 +128,29 @@ do
 done
 
 
-# =====================================================
-# C) HOST (nueva terminal para levantar el servidor)
-# =====================================================
+## Fase C: Levantar el servidor para ver la página
 
-# 1) Dirigirse a la ruta correcta
+### 1) Dirigirse a la ruta correcta
 
 cd Downloads/bigdata-homicidios-mexico
-ls
 
 cd web
-ls
 
-# 2) Iniciar el docker
+### 2) Iniciar el docker
 docker-compose up --build
-# O puede quitarse ejecutarse  docker compose up --build dependiendo la version de docker
 
-# 3) Verificar el estado del servidor
+O puede quitarse ejecutarse dependiendo la version de docker instalada:
+docker compose up --build 
+
+### 3) Verificar el estado del servidor
 curl http://localhost:8000/health
 
-# 4) Dirigirse a la ruta de la página
+### 4) Dirigirse a la ruta de la página
 cd Downloads/bigdata-homicidios-mexico/web/frontend
 ls
 
-# 5) Iniciar el servidor
+### 5) Iniciar el servidor
 python3 -m http.server 5173
 
-# 6) Dirigirse a la página 
+### 6) Dirigirse a la página 
 http://localhost:5173/
